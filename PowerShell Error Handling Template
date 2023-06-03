@@ -1,0 +1,48 @@
+# Set the log file path
+$LogFilePath = "C:\Path\to\LogFile.txt"
+
+# Function to write log messages to the log file
+function Write-Log {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+        
+        [Parameter()]
+        [ValidateSet("Info", "Warning", "Error")]
+        [string]$LogLevel = "Info"
+    )
+    
+    $Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $LogMessage = "$Timestamp [$LogLevel]: $Message"
+    $LogMessage | Out-File -FilePath $LogFilePath -Append
+}
+
+# Function to handle errors and write them to the log file
+function Handle-Error {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ErrorMessage
+    )
+    
+    Write-Log -Message $ErrorMessage -LogLevel "Error"
+    throw $ErrorMessage
+}
+
+# Start of main script logic
+try {
+    # Main script code here
+
+    # Example: Division by zero error
+    $numerator = 10
+    $denominator = 0
+    $result = $numerator / $denominator
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    Write-Log -Message $errorMessage -LogLevel "Error"
+    Handle-Error -ErrorMessage $errorMessage
+}
+finally {
+    # Clean-up code here (e.g., closing open resources, releasing memory)
+    Write-Log -Message "Script execution completed."
+}
